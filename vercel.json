@@ -3,14 +3,13 @@
   "builds": [
     {
       "src": "api/**/*.js",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["template.docx"]
+      }
     },
     {
       "src": "public/**",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "template.docx",
       "use": "@vercel/static"
     }
   ],
@@ -23,10 +22,5 @@
       "src": "/(.*)",
       "dest": "/public/$1"
     }
-  ],
-  "functions": {
-    "api/**/*.js": {
-      "includeFiles": "template.docx"
-    }
-  }
+  ]
 }
