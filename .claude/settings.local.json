@@ -13,7 +13,12 @@
       "Bash(curl:*)",
       "Bash(netstat:*)",
       "Bash(taskkill //F //PID 40280)",
-      "Bash(taskkill //F //PID 27396)"
+      "Bash(taskkill //F //PID 27396)",
+      "Bash(git branch:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "WebFetch(domain:contract-generator-kgie.vercel.app)"
     ],
     "deny": [],
     "ask": []

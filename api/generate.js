@@ -53,8 +53,8 @@ export default async function handler(req, res) {
 }
 
 async function generateContract(data) {
-  // 模版文件路径 - 在项目根目录
-  const templatePath = path.resolve(__dirname, '..', 'template.docx');
+  // 模版文件路径 - 在 api 目录下
+  const templatePath = path.resolve(__dirname, 'template.docx');
 
   // 检查模版文件是否存在
   if (!fs.existsSync(templatePath)) {
