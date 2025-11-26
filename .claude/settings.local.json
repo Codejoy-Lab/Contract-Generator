@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(python:*)",
+      "Bash(pip install:*)",
+      "Bash(where:*)",
+      "Bash(C:ANCONDpython.exe --version)",
+      "Bash(/c/ANCOND/python.exe:*)",
+      "Bash(npm install:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(curl:*)",
+      "Bash(netstat:*)",
+      "Bash(taskkill //F //PID 40280)",
+      "Bash(taskkill //F //PID 27396)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

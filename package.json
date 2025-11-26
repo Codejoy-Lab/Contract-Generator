@@ -1,0 +1,20 @@
+{
+  "name": "intern-contract-generator",
+  "version": "1.0.0",
+  "description": "实习合同自动生成工具",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "echo 'No build needed for static files'",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "docx": "^8.5.0",
+    "docxtemplater": "^3.67.5",
+    "pizzip": "^3.2.0"
+  },
+  "devDependencies": {
+    "dotenv": "^17.2.3",
+    "vercel": "^37.0.0"
+  }
+}

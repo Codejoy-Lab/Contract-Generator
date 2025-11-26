@@ -1,0 +1,10 @@
+node_modules/
+.vercel/
+.env
+.env.local
+*.log
+.DS_Store
+read_template.py
+read_template2.py
+prepare_template.py
+test_output.docx

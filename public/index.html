@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实习合同自动生成工具 - 酷爱科技</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      opacity: 0.8;
+      font-size: 14px;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    /* Step indicator */
+    .steps {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+      gap: 10px;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: #f0f0f0;
+      color: #666;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .step.active {
+      background: #667eea;
+      color: white;
+    }
+
+    .step.completed {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .step-number {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    /* Sections */
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    /* Input section */
+    .input-label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .input-hint {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 15px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 300px;
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: vertical;
+      transition: border-color 0.3s;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    textarea::placeholder {
+      color: #aaa;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+      color: white;
+    }
+
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 25px;
+      justify-content: flex-end;
+    }
+
+    /* Confirm section - form fields */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group.full-width {
+      grid-column: span 2;
+    }
+
+    .form-group label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    .form-group label .required {
+      color: #e53935;
+    }
+
+    .form-group input {
+      padding: 12px 14px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .form-group input.error {
+      border-color: #e53935;
+      background: #fff5f5;
+    }
+
+    .form-group .hint {
+      font-size: 12px;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    .form-group .error-msg {
+      font-size: 12px;
+      color: #e53935;
+      margin-top: 4px;
+      display: none;
+    }
+
+    .form-group input.error + .error-msg {
+      display: block;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .section-divider {
+      margin: 30px 0;
+    }
+
+    /* Loading state */
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #f0f0f0;
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      margin-top: 20px;
+      color: #666;
+      font-size: 15px;
+    }
+
+    /* Result section */
+    .result-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .result-icon svg {
+      width: 40px;
+      height: 40px;
+      fill: white;
+    }
+
+    .result-title {
+      text-align: center;
+      font-size: 22px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .result-desc {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .result-info {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 25px;
+    }
+
+    .result-info-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .result-info-item:last-child {
+      border-bottom: none;
+    }
+
+    .result-info-label {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .result-info-value {
+      color: #333;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    /* Error state */
+    .error-box {
+      background: #fff5f5;
+      border: 1px solid #ffcdd2;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .error-box-title {
+      color: #c62828;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .error-box-msg {
+      color: #666;
+      font-size: 14px;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-group.full-width {
+        grid-column: span 1;
+      }
+
+      .steps {
+        flex-wrap: wrap;
+      }
+
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .result-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <h1>实习合同自动生成工具</h1>
+        <p>粘贴录用通知邮件，一键生成实习协议</p>
+      </div>
+
+      <div class="content">
+        <!-- Step indicator -->
+        <div class="steps">
+          <div class="step active" id="step1-indicator">
+            <span class="step-number">1</span>
+            <span>粘贴邮件</span>
+          </div>
+          <div class="step" id="step2-indicator">
+            <span class="step-number">2</span>
+            <span>确认信息</span>
+          </div>
+          <div class="step" id="step3-indicator">
+            <span class="step-number">3</span>
+            <span>下载合同</span>
+          </div>
+        </div>
+
+        <!-- Step 1: Input email -->
+        <div class="section active" id="step1">
+          <label class="input-label">请粘贴「实习录用通知书」邮件内容</label>
+          <p class="input-hint">从邮箱中复制完整的录用通知邮件正文，粘贴到下方输入框中。系统将自动识别关键信息。</p>
+          <textarea id="emailContent" placeholder="在此粘贴邮件内容...
+
+例如：
+《实习录用通知书》
+
+王舒惠同学：
+
+我们非常高兴地通知您，经过对您简历的详细评估...
+
+实习起止日期：自 2025年12月1日至2026年3月1日
+实习岗位：AIGC设计师
+实习补贴：250元/天
+..."></textarea>
+
+          <div class="btn-group">
+            <button class="btn btn-primary" id="extractBtn" onclick="extractInfo()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              识别信息
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: Confirm info -->
+        <div class="section" id="step2">
+          <div class="section-title">从邮件中识别的信息</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>实习生姓名 <span class="required">*</span></label>
+              <input type="text" id="field_internName" placeholder="请输入姓名">
+              <span class="error-msg">请填写实习生姓名</span>
+            </div>
+            <div class="form-group">
+              <label>实习岗位 <span class="required">*</span></label>
+              <input type="text" id="field_internPosition" placeholder="请输入岗位">
+              <span class="error-msg">请填写实习岗位</span>
+            </div>
+            <div class="form-group">
+              <label>实习开始日期 <span class="required">*</span></label>
+              <input type="text" id="field_startDate" placeholder="例如：2025-12-01">
+              <span class="hint">格式：YYYY-MM-DD</span>
+              <span class="error-msg">请填写正确的日期格式</span>
+            </div>
+            <div class="form-group">
+              <label>实习结束日期 <span class="required">*</span></label>
+              <input type="text" id="field_endDate" placeholder="例如：2026-03-01">
+              <span class="hint">格式：YYYY-MM-DD</span>
+              <span class="error-msg">请填写正确的日期格式</span>
+            </div>
+            <div class="form-group">
+              <label>每日补贴(元) <span class="required">*</span></label>
+              <input type="text" id="field_dailyAllowance" placeholder="例如：250">
+              <span class="error-msg">请填写补贴金额</span>
+            </div>
+            <div class="form-group">
+              <label>实习导师</label>
+              <input type="text" id="field_supervisor" placeholder="请输入导师姓名">
+            </div>
+            <div class="form-group full-width">
+              <label>工作地点备注</label>
+              <input type="text" id="field_workLocation" placeholder="例如：线下+线上、支持远程办公">
+              <span class="hint">此备注信息将显示在合同补充说明中</span>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="section-title">需要手动补充的信息</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>就读学校</label>
+              <input type="text" id="field_school" placeholder="请输入学校名称">
+            </div>
+            <div class="form-group">
+              <label>联系电话</label>
+              <input type="text" id="field_phone" placeholder="请输入手机号">
+            </div>
+            <div class="form-group">
+              <label>电子邮箱</label>
+              <input type="email" id="field_email" placeholder="请输入邮箱">
+            </div>
+            <div class="form-group">
+              <label>身份证号</label>
+              <input type="text" id="field_idNumber" placeholder="请输入身份证号">
+            </div>
+            <div class="form-group">
+              <label>签署日期</label>
+              <input type="text" id="field_signDate" placeholder="例如：2025-11-26">
+              <span class="hint">默认为今天，可修改</span>
+            </div>
+          </div>
+
+          <div class="btn-group">
+            <button class="btn btn-secondary" onclick="goToStep(1)">返回修改</button>
+            <button class="btn btn-success" onclick="generateContract()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              确认并生成合同
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading state -->
+        <div class="section" id="loading">
+          <div class="loading">
+            <div class="spinner"></div>
+            <p class="loading-text" id="loadingText">正在识别邮件信息，请稍候...</p>
+          </div>
+        </div>
+
+        <!-- Step 3: Result -->
+        <div class="section" id="step3">
+          <div class="result-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+          </div>
+          <h2 class="result-title">合同生成成功！</h2>
+          <p class="result-desc">实习协议已生成，请下载后核对信息</p>
+
+          <div class="result-info">
+            <div class="result-info-item">
+              <span class="result-info-label">实习生</span>
+              <span class="result-info-value" id="result_name">-</span>
+            </div>
+            <div class="result-info-item">
+              <span class="result-info-label">实习岗位</span>
+              <span class="result-info-value" id="result_position">-</span>
+            </div>
+            <div class="result-info-item">
+              <span class="result-info-label">实习期限</span>
+              <span class="result-info-value" id="result_period">-</span>
+            </div>
+            <div class="result-info-item">
+              <span class="result-info-label">文件名</span>
+              <span class="result-info-value" id="result_filename">-</span>
+            </div>
+          </div>
+
+          <div class="result-actions">
+            <button class="btn btn-secondary" onclick="resetForm()">生成新合同</button>
+            <button class="btn btn-success" id="downloadBtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              下载合同
+            </button>
+          </div>
+        </div>
+
+        <!-- Error state -->
+        <div class="section" id="errorSection">
+          <div class="error-box">
+            <div class="error-box-title">出错了</div>
+            <div class="error-box-msg" id="errorMsg">发生了一些问题，请稍后重试。</div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-secondary" onclick="resetForm()">重新开始</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global state
+    let currentStep = 1;
+    let extractedData = {};
+    let generatedBlob = null;
+    let generatedFilename = '';
+
+    // Step navigation
+    function goToStep(step) {
+      currentStep = step;
+
+      // Hide all sections
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+
+      // Show current section
+      document.getElementById(`step${step}`).classList.add('active');
+
+      // Update indicators
+      for (let i = 1; i <= 3; i++) {
+        const indicator = document.getElementById(`step${i}-indicator`);
+        indicator.classList.remove('active', 'completed');
+        if (i < step) {
+          indicator.classList.add('completed');
+        } else if (i === step) {
+          indicator.classList.add('active');
+        }
+      }
+    }
+
+    function showLoading(text) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById('loading').classList.add('active');
+      document.getElementById('loadingText').textContent = text;
+    }
+
+    function showError(msg) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById('errorSection').classList.add('active');
+      document.getElementById('errorMsg').textContent = msg;
+    }
+
+    // Extract info from email
+    async function extractInfo() {
+      const emailContent = document.getElementById('emailContent').value.trim();
+
+      if (!emailContent) {
+        alert('请先粘贴实习录用通知邮件内容');
+        return;
+      }
+
+      showLoading('正在识别邮件信息，请稍候...');
+
+      try {
+        const response = await fetch('/api/extract', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ emailContent })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || '识别失败');
+        }
+
+        extractedData = result.data;
+        fillFormFields(extractedData);
+        goToStep(2);
+
+      } catch (error) {
+        console.error('Extract error:', error);
+        showError(error.message || '识别邮件信息失败，请检查网络连接后重试');
+      }
+    }
+
+    // Fill form fields with extracted data
+    function fillFormFields(data) {
+      const fields = [
+        'internName', 'internPosition', 'startDate', 'endDate',
+        'dailyAllowance', 'supervisor', 'workLocation',
+        'school', 'phone', 'email', 'idNumber'
+      ];
+
+      fields.forEach(field => {
+        const input = document.getElementById(`field_${field}`);
+        if (input && data[field]) {
+          input.value = data[field];
+        }
+      });
+
+      // Set default sign date to today
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('field_signDate').value = data.signDate || today;
+    }
+
+    // Validate required fields
+    function validateFields() {
+      const required = ['internName', 'internPosition', 'startDate', 'endDate', 'dailyAllowance'];
+      let isValid = true;
+
+      required.forEach(field => {
+        const input = document.getElementById(`field_${field}`);
+        const value = input.value.trim();
+
+        if (!value) {
+          input.classList.add('error');
+          isValid = false;
+        } else {
+          input.classList.remove('error');
+        }
+      });
+
+      // Validate date format
+      const dateFields = ['startDate', 'endDate', 'signDate'];
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+      dateFields.forEach(field => {
+        const input = document.getElementById(`field_${field}`);
+        const value = input.value.trim();
+        if (value && !dateRegex.test(value)) {
+          input.classList.add('error');
+          isValid = false;
+        }
+      });
+
+      return isValid;
+    }
+
+    // Collect form data
+    function collectFormData() {
+      const fields = [
+        'internName', 'internPosition', 'startDate', 'endDate',
+        'dailyAllowance', 'supervisor', 'workLocation',
+        'school', 'phone', 'email', 'idNumber', 'signDate'
+      ];
+
+      const data = {};
+      fields.forEach(field => {
+        const input = document.getElementById(`field_${field}`);
+        data[field] = input ? input.value.trim() : '';
+      });
+
+      return data;
+    }
+
+    // Generate contract
+    async function generateContract() {
+      if (!validateFields()) {
+        alert('请填写所有必填项，并确保日期格式正确（YYYY-MM-DD）');
+        return;
+      }
+
+      const formData = collectFormData();
+      showLoading('正在生成实习合同，请稍候...');
+
+      try {
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || '生成失败');
+        }
+
+        // Get the blob
+        const blob = await response.blob();
+        generatedBlob = blob;
+
+        // Get filename from header or generate
+        const contentDisposition = response.headers.get('Content-Disposition');
+        if (contentDisposition) {
+          const filenameMatch = contentDisposition.match(/filename\*?=['"]?(?:UTF-8'')?([^;\r\n"']*)['"]?/);
+          if (filenameMatch) {
+            generatedFilename = decodeURIComponent(filenameMatch[1]);
+          }
+        }
+
+        if (!generatedFilename) {
+          generatedFilename = `酷爱科技-实习协议-${formData.internName}-${formData.startDate}.docx`;
+        }
+
+        // Update result display
+        document.getElementById('result_name').textContent = formData.internName;
+        document.getElementById('result_position').textContent = formData.internPosition;
+        document.getElementById('result_period').textContent = `${formData.startDate} 至 ${formData.endDate}`;
+        document.getElementById('result_filename').textContent = generatedFilename;
+
+        // Setup download button
+        document.getElementById('downloadBtn').onclick = downloadContract;
+
+        goToStep(3);
+
+        // Auto download
+        downloadContract();
+
+      } catch (error) {
+        console.error('Generate error:', error);
+        showError(error.message || '生成合同失败，请稍后重试');
+      }
+    }
+
+    // Download contract
+    function downloadContract() {
+      if (!generatedBlob) {
+        alert('没有可下载的合同文件');
+        return;
+      }
+
+      const url = URL.createObjectURL(generatedBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = generatedFilename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Reset form
+    function resetForm() {
+      document.getElementById('emailContent').value = '';
+
+      const fields = [
+        'internName', 'internPosition', 'startDate', 'endDate',
+        'dailyAllowance', 'supervisor', 'workLocation',
+        'school', 'phone', 'email', 'idNumber', 'signDate'
+      ];
+
+      fields.forEach(field => {
+        const input = document.getElementById(`field_${field}`);
+        if (input) {
+          input.value = '';
+          input.classList.remove('error');
+        }
+      });
+
+      extractedData = {};
+      generatedBlob = null;
+      generatedFilename = '';
+
+      goToStep(1);
+    }
+  </script>
+</body>
+</html>
