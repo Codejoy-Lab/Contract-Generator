@@ -46,29 +46,37 @@ export default async function handler(req, res) {
 }
 
 async function extractWithDeepSeek(emailContent, apiKey) {
-  const systemPrompt = `你是一个专业的信息提取助手。你的任务是从实习录用通知邮件中提取关键信息。
+  const systemPrompt = `你是一个专业的信息提取助手。你的任务是从实习录用通知邮件中提取所有可能的关键信息。
+
+邮件内容可能包含邮件头部信息（发件人、收件人、主题等）和正文内容。请尽可能从中提取以下所有字段。
 
 请严格按照以下JSON格式返回提取的信息，不要包含任何其他文字：
 
 {
-  "internName": "实习生姓名（去掉'同学'、'女士'、'先生'等称谓后缀）",
+  "internName": "实习生姓名",
   "internPosition": "实习岗位名称",
   "startDate": "实习开始日期（格式：YYYY-MM-DD）",
   "endDate": "实习结束日期（格式：YYYY-MM-DD）",
   "dailyAllowance": "每日补贴金额（只填数字）",
-  "supervisor": "实习导师姓名（去掉@符号）",
-  "workLocation": "工作地点描述（如'线下+线上'）",
-  "workTime": "工作时间描述"
+  "supervisor": "实习导师姓名",
+  "workLocation": "工作地点描述",
+  "workTime": "工作时间描述",
+  "email": "实习生邮箱地址",
+  "school": "就读学校",
+  "phone": "联系电话",
+  "idNumber": "身份证号"
 }
 
-注意事项：
-1. 日期必须转换为 YYYY-MM-DD 格式，例如"2025年12月1日"应转为"2025-12-01"
-2. 补贴金额只提取数字，例如"250元/天"只填"250"
-3. 如果某个字段在邮件中找不到，填空字符串""
-4. 姓名去掉所有称谓后缀，只保留姓名本身
-5. 导师姓名去掉@符号`;
+提取规则：
+1. 实习生姓名：从正文称呼（如"王舒惠同学"）或邮件主题中提取，去掉"同学"、"女士"、"先生"等后缀
+2. 实习生邮箱：从"收件人"字段提取，如"收件人：2962034821@qq.com"则提取"2962034821@qq.com"
+3. 日期必须转换为 YYYY-MM-DD 格式，例如"2025年12月1日"应转为"2025-12-01"
+4. 补贴金额只提取数字，例如"250元/天"只填"250"
+5. 导师姓名去掉@符号，如"@林文婷"提取为"林文婷"
+6. 如果某个字段在邮件中确实找不到，填空字符串""
+7. 不要猜测或编造信息，只提取邮件中明确存在的内容`;
 
-  const userPrompt = `请从以下实习录用通知邮件中提取信息：
+  const userPrompt = `请从以下实习录用通知邮件中提取所有可用信息：
 
 ${emailContent}`;
 
@@ -129,7 +137,11 @@ ${emailContent}`;
     dailyAllowance: cleanNumber(extractedData.dailyAllowance),
     supervisor: cleanString(extractedData.supervisor),
     workLocation: cleanString(extractedData.workLocation),
-    workTime: cleanString(extractedData.workTime)
+    workTime: cleanString(extractedData.workTime),
+    email: cleanString(extractedData.email),
+    school: cleanString(extractedData.school),
+    phone: cleanString(extractedData.phone),
+    idNumber: cleanString(extractedData.idNumber)
   };
 
   return cleanedData;

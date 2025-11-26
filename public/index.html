@@ -509,23 +509,27 @@
 
           <div class="section-divider"></div>
 
-          <div class="section-title">需要手动补充的信息</div>
+          <div class="section-title">其他信息（尝试从邮件提取，未提取到需手动填写）</div>
           <div class="form-grid">
+            <div class="form-group">
+              <label>电子邮箱</label>
+              <input type="email" id="field_email" placeholder="请输入邮箱">
+              <span class="hint manual-hint" id="hint_email" style="display:none; color:#e67e22;">未从邮件提取到，需手动填写</span>
+            </div>
             <div class="form-group">
               <label>就读学校</label>
               <input type="text" id="field_school" placeholder="请输入学校名称">
+              <span class="hint manual-hint" id="hint_school" style="display:none; color:#e67e22;">未从邮件提取到，需手动填写</span>
             </div>
             <div class="form-group">
               <label>联系电话</label>
               <input type="text" id="field_phone" placeholder="请输入手机号">
-            </div>
-            <div class="form-group">
-              <label>电子邮箱</label>
-              <input type="email" id="field_email" placeholder="请输入邮箱">
+              <span class="hint manual-hint" id="hint_phone" style="display:none; color:#e67e22;">未从邮件提取到，需手动填写</span>
             </div>
             <div class="form-group">
               <label>身份证号</label>
               <input type="text" id="field_idNumber" placeholder="请输入身份证号">
+              <span class="hint manual-hint" id="hint_idNumber" style="display:none; color:#e67e22;">未从邮件提取到，需手动填写</span>
             </div>
             <div class="form-group">
               <label>签署日期</label>
@@ -696,10 +700,29 @@
         'school', 'phone', 'email', 'idNumber'
       ];
 
+      // Fields that have manual hints
+      const fieldsWithHints = ['school', 'phone', 'email', 'idNumber'];
+
       fields.forEach(field => {
         const input = document.getElementById(`field_${field}`);
-        if (input && data[field]) {
-          input.value = data[field];
+        if (input) {
+          if (data[field]) {
+            input.value = data[field];
+          } else {
+            input.value = '';
+          }
+        }
+
+        // Show/hide manual hint for optional fields
+        if (fieldsWithHints.includes(field)) {
+          const hint = document.getElementById(`hint_${field}`);
+          if (hint) {
+            if (!data[field]) {
+              hint.style.display = 'block';
+            } else {
+              hint.style.display = 'none';
+            }
+          }
         }
       });
 
@@ -846,11 +869,21 @@
         'school', 'phone', 'email', 'idNumber', 'signDate'
       ];
 
+      const fieldsWithHints = ['school', 'phone', 'email', 'idNumber'];
+
       fields.forEach(field => {
         const input = document.getElementById(`field_${field}`);
         if (input) {
           input.value = '';
           input.classList.remove('error');
+        }
+
+        // Hide manual hints
+        if (fieldsWithHints.includes(field)) {
+          const hint = document.getElementById(`hint_${field}`);
+          if (hint) {
+            hint.style.display = 'none';
+          }
         }
       });
 
